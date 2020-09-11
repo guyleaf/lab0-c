@@ -6,6 +6,8 @@
 
 #include "harness.h"
 
+#define min(a, b) a < b ? a : b
+
 /*
  * Create empty queue.
  * Return NULL if could not allocate space.
@@ -17,6 +19,7 @@ queue_t *q_new()
         return NULL;
     }
     q->head = NULL;
+    q->tail = NULL;
     q->size = 0;
     return q;
 }
@@ -50,13 +53,30 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
-    list_ele_t *newh;
-    /* TODO: What should you do if the q is NULL? */
+    if (!q) {
+        return false;
+    }
+
+    list_ele_t *newh = NULL;
     newh = malloc(sizeof(list_ele_t));
-    /* Don't forget to allocate space for the string and copy it */
-    /* What if either call to malloc returns NULL? */
+    if (!newh) {
+        return false;
+    }
+
+    /* allocate space and copy the string into it */
+    newh->value = malloc(strlen(s) + 1);
+    if (!newh->value) {
+        free(newh);
+        return false;
+    }
+    memcpy(newh->value, s, strlen(s) + 1);
+
     newh->next = q->head;
     q->head = newh;
+    if (!q->size) {
+        q->tail = newh;
+    }
+    q->size++;
     return true;
 }
 
@@ -69,10 +89,31 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
-    /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
-    return false;
+    if (!q) {
+        return false;
+    }
+
+    list_ele_t *newt = NULL;
+    newt = malloc(sizeof(list_ele_t));
+    if (!newt) {
+        return false;
+    }
+
+    /* allocate space and copy the string into it */
+    newt->value = malloc(strlen(s) + 1);
+    if (!newt->value) {
+        free(newt);
+        return false;
+    }
+    memcpy(newt->value, s, strlen(s) + 1);
+
+    newt->next = NULL;
+    if (!q->size) {
+        q->head = newt;
+    }
+    q->tail = newt;
+    q->size++;
+    return true;
 }
 
 /*
@@ -85,9 +126,26 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || !q->size) {
+        return false;
+    }
+
+    list_ele_t *oldh = q->head;
     q->head = q->head->next;
+
+    if (sp) {
+        size_t length = min(strlen(oldh->value), bufsize - 1);
+        memcpy(sp, oldh->value, length);
+        sp[length + 1] = '\0';
+    }
+
+    oldh->next = NULL;
+    free(oldh->value);
+    free(oldh);
+    q->size--;
+    if (!q->size) {
+        q->tail = NULL;
+    }
     return true;
 }
 
