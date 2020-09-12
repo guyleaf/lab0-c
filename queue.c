@@ -6,8 +6,9 @@
 
 #include "harness.h"
 
-#define min(a, b) a < b ? a : b
+#define min(a, b) (a < b ? a : b)
 #define isNum(s) (s <= '9' && s >= '0')
+#define IS_NULL_EMPTY(s) (!s)
 
 /*
  * Create empty queue.
@@ -16,9 +17,9 @@
 queue_t *q_new()
 {
     queue_t *q = malloc(sizeof(queue_t));
-    if (!q) {
+    if (IS_NULL_EMPTY(q))
         return NULL;
-    }
+
     q->head = NULL;
     q->tail = NULL;
     q->size = 0;
@@ -28,9 +29,9 @@ queue_t *q_new()
 /* Free all storage used by queue */
 void q_free(queue_t *q)
 {
-    if (!q) {
+    if (IS_NULL_EMPTY(q))
         return;
-    }
+
     /* Free the list elements and the strings */
     list_ele_t *current = q->head;
     while (current) {
@@ -42,6 +43,7 @@ void q_free(queue_t *q)
         current = q->head;
     }
     /* Free queue structure */
+    q->size = 0;
     free(q);
 }
 
@@ -54,29 +56,26 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
-    if (!q) {
+    if (IS_NULL_EMPTY(q))
         return false;
-    }
 
     list_ele_t *newh = NULL;
     newh = malloc(sizeof(list_ele_t));
-    if (!newh) {
+    if (IS_NULL_EMPTY(newh))
         return false;
-    }
 
     /* allocate space and copy the string into it */
     newh->value = malloc(strlen(s) + 1);
-    if (!newh->value) {
+    if (IS_NULL_EMPTY(newh->value)) {
         free(newh);
         return false;
     }
     memcpy(newh->value, s, strlen(s) + 1);
-
     newh->next = q->head;
+
     q->head = newh;
-    if (!q->size) {
+    if (IS_NULL_EMPTY(q->size))
         q->tail = newh;
-    }
     q->size++;
     return true;
 }
@@ -90,30 +89,27 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    if (!q) {
+    if (IS_NULL_EMPTY(q))
         return false;
-    }
 
     list_ele_t *newt = NULL;
     newt = malloc(sizeof(list_ele_t));
-    if (!newt) {
+    if (IS_NULL_EMPTY(newt))
         return false;
-    }
 
     /* allocate space and copy the string into it */
     newt->value = malloc(strlen(s) + 1);
-    if (!newt->value) {
+    if (IS_NULL_EMPTY(newt->value)) {
         free(newt);
         return false;
     }
     memcpy(newt->value, s, strlen(s) + 1);
-
     newt->next = NULL;
-    if (!q->size) {
+
+    if (IS_NULL_EMPTY(q->size))
         q->head = newt;
-    } else {
+    else
         q->tail->next = newt;
-    }
     q->tail = newt;
     q->size++;
     return true;
@@ -129,14 +125,13 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    if (!q || !q->size) {
+    if (IS_NULL_EMPTY(q) || IS_NULL_EMPTY(q->size))
         return false;
-    }
 
     list_ele_t *oldh = q->head;
     q->head = q->head->next;
 
-    if (sp) {
+    if (!IS_NULL_EMPTY(sp)) {
         size_t length = min(strlen(oldh->value), bufsize - 1);
         memcpy(sp, oldh->value, length);
         sp[length] = '\0';
@@ -146,9 +141,9 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     free(oldh->value);
     free(oldh);
     q->size--;
-    if (!q->size) {
+
+    if (IS_NULL_EMPTY(q->size))
         q->tail = NULL;
-    }
     return true;
 }
 
@@ -158,7 +153,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
  */
 int q_size(queue_t *q)
 {
-    return !q ? 0 : q->size;
+    return IS_NULL_EMPTY(q) ? 0 : q->size;
 }
 
 /*
@@ -170,9 +165,8 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-    if (!q || !q->size) {
+    if (IS_NULL_EMPTY(q) || IS_NULL_EMPTY(q->size))
         return;
-    }
 
     list_ele_t *cursor = q->head, *prev = NULL;
     while (cursor) {
@@ -266,9 +260,8 @@ list_ele_t *splitList(list_ele_t *head, size_t size)
  */
 list_ele_t *mergeSort(list_ele_t *head, size_t size)
 {
-    if (size <= 1) {
+    if (size <= 1)
         return head;
-    }
 
     list_ele_t *node = splitList(head, size);
     size_t halfSize = size / 2;
@@ -282,9 +275,8 @@ list_ele_t *mergeSort(list_ele_t *head, size_t size)
  */
 void q_sort(queue_t *q)
 {
-    if (!q || !q->size) {
+    if (IS_NULL_EMPTY(q) || IS_NULL_EMPTY(q->size))
         return;
-    }
 
     q->head = mergeSort(q->head, q->size);
 
