@@ -108,10 +108,11 @@ bool q_insert_tail(queue_t *q, char *s)
     }
     memcpy(newt->value, s, strlen(s) + 1);
 
-    q->tail->next = newt;
     newt->next = NULL;
     if (!q->size) {
         q->head = newt;
+    } else {
+        q->tail->next = newt;
     }
     q->tail = newt;
     q->size++;
