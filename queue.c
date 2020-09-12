@@ -181,30 +181,6 @@ void q_reverse(queue_t *q)
 }
 
 /*
- * Compare two strings
- * Sorted by natural sort order
- * return positive number if 1st string > 2nd string
- * return 0 if 1st string == 2nd string
- * return negative number if 1st string < 2nd string
- */
-int compare(char *word1, char *word2)
-{
-    while (*word1 != '\0' && *word2 != '\0') {
-        if (isNum(*word1) && isNum(*word2)) {
-            int a = atoi(word1), b = atoi(word2);
-            if (a != b) {
-                return a - b;
-            }
-        } else if (*word1 != *word2) {
-            return *word1 - *word2;
-        }
-        word1++;
-        word2++;
-    }
-    return *word1 - *word2;
-}
-
-/*
  * Merge two lists in ascending order
  * return head of list
  */
@@ -216,7 +192,7 @@ list_ele_t *merge(list_ele_t *a, list_ele_t *b)
     current = head = &newh;
 
     while (a && b) {
-        int tmp = compare(a->value, b->value);
+        int tmp = strcmp(a->value, b->value);
         if (tmp > 0) {
             current->next = b;
             current = current->next;
