@@ -7,11 +7,7 @@
 #include "harness.h"
 
 #define min(a, b) a < b ? a : b
-#define isNum(s)          \
-    ({                    \
-        s = (s - '0');    \
-        s >= 0 && s <= 9; \
-    })
+#define isNum(s) (s <= '9' && s >= '0')
 
 /*
  * Create empty queue.
@@ -112,6 +108,7 @@ bool q_insert_tail(queue_t *q, char *s)
     }
     memcpy(newt->value, s, strlen(s) + 1);
 
+    q->tail->next = newt;
     newt->next = NULL;
     if (!q->size) {
         q->head = newt;
@@ -141,7 +138,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     if (sp) {
         size_t length = min(strlen(oldh->value), bufsize - 1);
         memcpy(sp, oldh->value, length);
-        sp[length + 1] = '\0';
+        sp[length] = '\0';
     }
 
     oldh->next = NULL;
@@ -218,15 +215,32 @@ int compare(char *word1, char *word2)
  */
 list_ele_t *merge(list_ele_t *a, list_ele_t *b)
 {
-    int tmp = compare(a->value, b->value);
-    list_ele_t *current = NULL;
+    list_ele_t newh;
+    list_ele_t *current, *head;
+    newh.next = NULL;
+    current = head = &newh;
 
-    current = tmp > 0 ? b : a;
-    while (current->next) {
-        current = current->next;
+    while (a && b) {
+        int tmp = compare(a->value, b->value);
+        if (tmp > 0) {
+            current->next = b;
+            current = current->next;
+            b = b->next;
+        } else {
+            current->next = a;
+            current = current->next;
+            a = a->next;
+        }
+        current->next = NULL;
     }
-    current->next = tmp > 0 ? a : b;
-    return tmp > 0 ? b : a;
+
+    if (a)
+        current->next = a;
+    if (b)
+        current->next = b;
+
+    head = head->next;
+    return head;
 }
 
 /*
