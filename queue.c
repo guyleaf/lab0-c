@@ -7,6 +7,11 @@
 #include "harness.h"
 
 #define min(a, b) a < b ? a : b
+#define isNum(s)          \
+    ({                    \
+        s = (s - '0');    \
+        s >= 0 && s <= 9; \
+    })
 
 /*
  * Create empty queue.
@@ -172,7 +177,7 @@ void q_reverse(queue_t *q)
     }
 
     list_ele_t *cursor = q->head, *prev = NULL;
-    while (*cursor) {
+    while (cursor) {
         list_ele_t *next = cursor->next;
         cursor->next = prev;
         prev = cursor;
@@ -184,12 +189,93 @@ void q_reverse(queue_t *q)
 }
 
 /*
+ * Compare two strings
+ * Sorted by natural sort order
+ * return positive number if 1st string > 2nd string
+ * return 0 if 1st string == 2nd string
+ * return negative number if 1st string < 2nd string
+ */
+int compare(char *word1, char *word2)
+{
+    while (*word1 != '\0' && *word2 != '\0') {
+        if (isNum(*word1) && isNum(*word2)) {
+            int a = atoi(word1), b = atoi(word2);
+            if (a != b) {
+                return a - b;
+            }
+        } else if (*word1 != *word2) {
+            return *word1 - *word2;
+        }
+        word1++;
+        word2++;
+    }
+    return *word1 - *word2;
+}
+
+/*
+ * Merge two lists in ascending order
+ * return head of list
+ */
+list_ele_t *merge(list_ele_t *a, list_ele_t *b)
+{
+    int tmp = compare(a->value, b->value);
+    list_ele_t *current = NULL;
+
+    current = tmp > 0 ? b : a;
+    while (current->next) {
+        current = current->next;
+    }
+    current->next = tmp > 0 ? a : b;
+    return tmp > 0 ? b : a;
+}
+
+/*
+ * Split list into two lists
+ * return head of 2nd splited list
+ */
+list_ele_t *splitList(list_ele_t *head, size_t size)
+{
+    for (size_t halfSize = size / 2; halfSize > 1; halfSize--) {
+        head = head->next;
+    }
+
+    list_ele_t *tmp = head;
+    head = head->next;
+    tmp->next = NULL;
+    return head;
+}
+
+/*
+ * Do merge sort algorithm
+ * return head of sorted list
+ */
+list_ele_t *mergeSort(list_ele_t *head, size_t size)
+{
+    if (size <= 1) {
+        return head;
+    }
+
+    list_ele_t *node = splitList(head, size);
+    size_t halfSize = size / 2;
+    return merge(mergeSort(head, halfSize), mergeSort(node, size - halfSize));
+}
+
+/*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || !q->size) {
+        return;
+    }
+
+    q->head = mergeSort(q->head, q->size);
+
+    list_ele_t *current = q->head;
+    while (current->next) {
+        current = current->next;
+    }
+    q->tail = current;
 }
