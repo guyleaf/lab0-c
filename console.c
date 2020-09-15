@@ -83,7 +83,7 @@ static void pop_file();
 static bool interpret_cmda(int argc, char *argv[]);
 
 static int read_valp(void *valp, size_t size);
-static bool write_valp(void *valp, size_t size, void *value);
+static bool write_valp(void *valp, void *value, size_t size);
 /* Initialize interpreter */
 void init_cmd()
 {
@@ -374,7 +374,7 @@ static bool do_option_cmd(int argc, char *argv[])
         while (!found && plist) {
             if (strcmp(plist->name, name) == 0) {
                 int oldval = read_valp(plist->valp, plist->valp_size);
-                if (!write_valp(plist->valp, plist->valp_size, &value)) {
+                if (!write_valp(plist->valp, &value, plist->valp_size)) {
                     report(1, "ERROR: Could not override parameter %s",
                            plist->name);
                     return false;
@@ -649,7 +649,7 @@ static int read_valp(void *valp, size_t size)
         return *(int *) valp;
 }
 
-static bool write_valp(void *valp, size_t size, void *value)
+static bool write_valp(void *valp, void *value, size_t size)
 {
     if (!valp || !value)
         return false;
