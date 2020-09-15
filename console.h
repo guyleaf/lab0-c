@@ -29,7 +29,8 @@ typedef void (*setter_function)(int oldval);
 typedef struct PELE param_ele, *param_ptr;
 struct PELE {
     char *name;
-    int *valp;
+    void *valp;
+    size_t valp_size;
     char *documentation;
     /* Function that gets called whenever parameter changes */
     setter_function setter;
@@ -44,7 +45,8 @@ void add_cmd(char *name, cmd_function operation, char *documentation);
 
 /* Add a new parameter */
 void add_param(char *name,
-               int *valp,
+               void *valp,
+               size_t valp_size,
                char *doccumentation,
                setter_function setter);
 
